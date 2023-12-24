@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "swift-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:open-feature/swift-sdk.git",
+      "state" : {
+        "revision" : "114321e376b3d80e6623c5cbd7e8bcef9c6a86d2",
+        "version" : "0.0.2"
+      }
+    }
+  ],
+  "version" : 2
+}
