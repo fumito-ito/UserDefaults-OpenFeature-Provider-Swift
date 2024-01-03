@@ -4,16 +4,18 @@
 import PackageDescription
 
 let package = Package(
-    name: "userdefaults-openfeature-provider-swift",
+    name: "UserDefaultsOpenFeatureProvider",
     platforms: [
         .iOS(.v14),
         .macOS(.v12),
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "userdefaults-openfeature-provider-swift",
-            targets: ["userdefaults-openfeature-provider-swift"]),
+            name: "UserDefaultsOpenFeatureProvider",
+            targets: ["UserDefaultsOpenFeatureProvider"]),
+        .library(
+            name: "UserDefaultsOpenFeatureProviderSetterExpansion",
+            targets: ["UserDefaultsOpenFeatureProviderSetterExpansion"]),
     ],
     dependencies: [
         .package(
@@ -23,15 +25,18 @@ let package = Package(
         ),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "userdefaults-openfeature-provider-swift",
+            name: "UserDefaultsOpenFeatureProvider",
             dependencies: [
                 .product(name: "OpenFeature", package: "openfeature-swift-sdk"),
-            ]),
+            ],
+            path: "Sources/UserDefaultsOpenFeatureProvider"),
+        .target(
+            name: "UserDefaultsOpenFeatureProviderSetterExpansion",
+            dependencies: ["UserDefaultsOpenFeatureProvider"],
+            path: "Sources/UserDefaultsOpenFeatureProviderSetterExpansion"),
         .testTarget(
-            name: "userdefaults-openfeature-provider-swiftTests",
-            dependencies: ["userdefaults-openfeature-provider-swift"]),
+            name: "UserDefaultsOpenFeatureProviderTests",
+            dependencies: ["UserDefaultsOpenFeatureProvider"]),
     ]
 )
