@@ -10,7 +10,7 @@ import OpenFeature
 @testable import UserDefaultsOpenFeatureProvider
 
 final class ProviderSpecTests: XCTestCase {
-    
+
     let provider: FeatureProvider = {
         UserDefaultsOpenFeatureProvider()
     }()
@@ -198,30 +198,32 @@ final class ProviderSpecTests: XCTestCase {
     // MARK: Initialization
 
     private struct TestContext: EvaluationContext {
+        var suiteName: String? = "suiteName"
+
         func getTargetingKey() -> String {
             ""
         }
-        
+
         func setTargetingKey(targetingKey: String) {
             // no implementation
         }
-        
+
         func keySet() -> Set<String> {
             Set()
         }
-        
+
         func getValue(key: String) -> OpenFeature.Value? {
-            if key == userDefaultsOpenFeatureProviderSuiteNameKey {
-                return .string("suiteName")
+            if let suiteName, key == userDefaultsOpenFeatureProviderSuiteNameKey {
+                return .string(suiteName)
             }
 
             return nil
         }
-        
+
         func asMap() -> [String : OpenFeature.Value] {
             [:]
         }
-        
+
         func asObjectMap() -> [String : AnyHashable?] {
             [:]
         }
@@ -267,7 +269,18 @@ final class ProviderSpecTests: XCTestCase {
     /// https://openfeature.dev/specification/sections/providers#requirement-243
     /// - Requirement 2.4.4: The provider MUST set its status field to ERROR if its initialize function terminates abnormally.
     /// https://openfeature.dev/specification/sections/providers#requirement-244
-    func testStatus() throws {}
+    func testStatus() throws {
+        let providerToTest = UserDefaultsOpenFeatureProvider()
+        XCTAssertEqual(providerToTest.status, .notReady)
+
+        var context = TestContext()
+        providerToTest.initialize(initialContext: context)
+        XCTAssertEqual(providerToTest.status, .ready)
+
+        context.suiteName = nil
+        providerToTest.initialize(initialContext: context)
+        XCTAssertEqual(providerToTest.status, .error)
+    }
 
 
     // MARK: Shutdown
@@ -280,5 +293,78 @@ final class ProviderSpecTests: XCTestCase {
     ///
     /// - Requirement 2.6.1: The provider MAY define an on context changed handler, which takes an argument for the previous context and the newly set context, in order to respond to an evaluation context change.
     /// https://openfeature.dev/specification/sections/providers#requirement-261
-    func testContextChange() throws {}
+    func testContextChangeEvent() throws {
+        let providerToTest = UserDefaultsOpenFeatureProvider()
+
+        OpenFeatureAPI.shared.addHandler(
+            observer: self, selector: #selector(configurationChangedEventEmitted(notification:)), event: .configurationChanged
+        )
+
+        OpenFeatureAPI.shared.setProvider(provider: providerToTest)
+        providerToTest.onContextSet(oldContext: TestContext(), newContext: TestContext())
+
+        wait(for: [configurationChangedExpectation], timeout: 5)
+    }
+
+    let configurationChangedExpectation = XCTestExpectation(description: "ConfigurationChanged")
+
+    func configurationChangedEventEmitted(notification: NSNotification) {
+        configurationChangedExpectation.fulfill()
+
+        let maybeProvider = notification.userInfo?[providerEventDetailsKeyProvider]
+        guard let eventProvider = maybeProvider as? UserDefaultsOpenFeatureProvider else {
+            XCTFail("Provider not passed in notification")
+            return
+        }
+        XCTAssertEqual(eventProvider.metadata.name, provider.metadata.name)
+    }
+
+    func testReadyEvent() {
+        let providerToTest = UserDefaultsOpenFeatureProvider()
+
+        OpenFeatureAPI.shared.addHandler(
+            observer: self, selector: #selector(readyEventEmitted(notification:)), event: .ready
+        )
+
+        OpenFeatureAPI.shared.setProvider(provider: providerToTest)
+        wait(for: [readyExpectation], timeout: 5)
+    }
+
+    let readyExpectation = XCTestExpectation(description: "Ready")
+
+    func readyEventEmitted(notification: NSNotification) {
+        readyExpectation.fulfill()
+
+        let maybeProvider = notification.userInfo?[providerEventDetailsKeyProvider]
+        guard let eventProvider = maybeProvider as? UserDefaultsOpenFeatureProvider else {
+            XCTFail("Provider not passed in notification")
+            return
+        }
+        XCTAssertEqual(eventProvider.metadata.name, provider.metadata.name)
+    }
+
+    func testErrorEvent() {
+        let providerToTest = UserDefaultsOpenFeatureProvider()
+
+        OpenFeatureAPI.shared.addHandler(
+            observer: self, selector: #selector(errorEventEmitted(notification:)), event: .error
+        )
+
+        let context = TestContext(suiteName: nil)
+        providerToTest.initialize(initialContext: context)
+        wait(for: [errorExpectation], timeout: 5)
+    }
+
+    let errorExpectation = XCTestExpectation(description: "Error")
+
+    func errorEventEmitted(notification: NSNotification) {
+        errorExpectation.fulfill()
+
+        let maybeProvider = notification.userInfo?[providerEventDetailsKeyProvider]
+        guard let eventProvider = maybeProvider as? UserDefaultsOpenFeatureProvider else {
+            XCTFail("Provider not passed in notification")
+            return
+        }
+        XCTAssertEqual(eventProvider.metadata.name, provider.metadata.name)
+    }
 }

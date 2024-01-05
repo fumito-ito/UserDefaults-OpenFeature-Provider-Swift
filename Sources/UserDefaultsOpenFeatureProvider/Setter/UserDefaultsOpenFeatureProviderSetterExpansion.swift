@@ -7,7 +7,6 @@
 
 import Foundation
 import OpenFeature
-import UserDefaultsOpenFeatureProvider
 
 extension UserDefaultsOpenFeatureProvider {
     private static let jsonEncoder = JSONEncoder()

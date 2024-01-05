@@ -11,7 +11,7 @@ import OpenFeature
 extension Dictionary<String, Any> {
     func wrapInValue() throws -> Dictionary<String, OpenFeature.Value> {
         try self.mapValues { value in
-            switch UserDefaultsOpenFeatureProvider.detectType(from: value) {
+            switch TypeDetector.detectType(from: value) {
             case .boolean:
                 guard let v = value as? Bool else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Bool")

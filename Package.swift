@@ -13,13 +13,9 @@ let package = Package(
         .library(
             name: "UserDefaultsOpenFeatureProvider",
             targets: ["UserDefaultsOpenFeatureProvider"]),
-        .library(
-            name: "UserDefaultsOpenFeatureProviderSetterExpansion",
-            targets: ["UserDefaultsOpenFeatureProviderSetterExpansion"]),
     ],
     dependencies: [
         .package(
-            name: "openfeature-swift-sdk",
             url: "git@github.com:open-feature/swift-sdk.git",
             .upToNextMajor(from: "0.0.2")
         ),
@@ -28,13 +24,9 @@ let package = Package(
         .target(
             name: "UserDefaultsOpenFeatureProvider",
             dependencies: [
-                .product(name: "OpenFeature", package: "openfeature-swift-sdk"),
+                .product(name: "OpenFeature", package: "swift-sdk"),
             ],
             path: "Sources/UserDefaultsOpenFeatureProvider"),
-        .target(
-            name: "UserDefaultsOpenFeatureProviderSetterExpansion",
-            dependencies: ["UserDefaultsOpenFeatureProvider"],
-            path: "Sources/UserDefaultsOpenFeatureProviderSetterExpansion"),
         .testTarget(
             name: "UserDefaultsOpenFeatureProviderTests",
             dependencies: ["UserDefaultsOpenFeatureProvider"]),

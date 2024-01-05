@@ -5,6 +5,8 @@ import OpenFeature
 import Foundation
 
 public let userDefaultsOpenFeatureProviderSuiteNameKey: String = "userDefaultsOpenFeatureProviderSuiteNameKey"
+public let userDefaultsOpenFeatureProviderOldContextKey: String = "userDefaultsOpenFeatureProviderOldContextKey"
+public let userDefaultsOpenFeatureProviderNewContextKey: String = "userDefaultsOpenFeatureProviderNewContextKey"
 
 public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 
@@ -21,6 +23,21 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 
     public private(set) var initialContext: EvaluationContext?
 
+    public private(set) var status: UserDefaultsOpenFeatureProviderStatus = .notReady {
+        didSet {
+            switch status {
+            case .notReady:
+                break
+            case .ready:
+                emit(event: .ready)
+            case .stale:
+                emit(event: .stale)
+            case .error:
+                emit(event: .error)
+            }
+        }
+    }
+
     // TODO: Hooksのハンドリングを書く
     public var hooks: [any Hook] = []
 
@@ -29,19 +46,28 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
     public func initialize(initialContext: EvaluationContext?) {
         self.initialContext = initialContext
 
-        guard let initialContext, case .string(let suiteName) = initialContext.getValue(key: userDefaultsOpenFeatureProviderSuiteNameKey) else {
+        guard let initialContext else {
             defaultDefaults = .standard
+            status = .ready
+            return
+        }
+
+        guard case .string(let suiteName) = initialContext.getValue(key: userDefaultsOpenFeatureProviderSuiteNameKey) else {
+            status = .error
             return
         }
 
         defaultDefaults = UserDefaults(suiteName: suiteName)
-
-        // TODO: emit `ready`
+        status = .ready
     }
     
     public func onContextSet(oldContext: EvaluationContext?, newContext: EvaluationContext) {
         initialize(initialContext: newContext)
-        // TODO: emit `configurationChanged`
+
+        emit(event: .configurationChanged, details: [
+            userDefaultsOpenFeatureProviderOldContextKey: oldContext as Any,
+            userDefaultsOpenFeatureProviderNewContextKey: newContext as Any
+        ])
     }
     
     public func getBooleanEvaluation(key: String, defaultValue: Bool, context: EvaluationContext?) throws -> ProviderEvaluation<Bool> {
@@ -144,7 +170,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
         }
 
-        switch Self.detectType(from: object) {
+        switch TypeDetector.detectType(from: object) {
         case .boolean:
             guard let value = defaultValue == .null ? false : defaultValue.asBoolean() else {
                 let error = OpenFeatureError.typeMismatchError
@@ -217,75 +243,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 }
 
 extension UserDefaultsOpenFeatureProvider {
-    enum DetectedType {
-        case boolean
-        case string
-        case integer
-        case double
-        case date
-        case array
-        case dictionary
-        case null
-        case unknown
-    }
-
-    static func detectType(from object: Any) -> DetectedType {
-        switch CFGetTypeID(object as CFTypeRef) {
-        case CFBooleanGetTypeID():
-            return .boolean
-
-        case CFStringGetTypeID():
-            return .string
-
-        case CFNumberGetTypeID():
-            let numberType = CFNumberGetType((object as! CFNumber))
-            switch numberType {
-            case
-                    .sInt8Type,
-                    .sInt16Type,
-                    .sInt32Type,
-                    .sInt64Type,
-                    .charType,
-                    .shortType,
-                    .intType,
-                    .longType,
-                    .longLongType,
-                    .cfIndexType,
-                    .nsIntegerType:
-                return .integer
-
-            case
-                    .float32Type,
-                    .float64Type,
-                    .floatType,
-                    .doubleType,
-                    .cgFloatType:
-                return .double
-
-            @unknown default:
-                return .unknown
-            }
-
-        case CFDateGetTypeID():
-            return .date
-
-        case CFArrayGetTypeID():
-            return .array
-
-        case CFDictionaryGetTypeID():
-            return .dictionary
-
-        case CFNullGetTypeID():
-            return .null
-
-        default:
-            return .unknown
-        }
-    }
-}
-
-extension UserDefaultsOpenFeatureProvider {
-    public func getCurrentUserDefaults(with context: EvaluationContext?) throws -> UserDefaults {
+    func getCurrentUserDefaults(with context: EvaluationContext?) throws -> UserDefaults {
         if let context {
             return try getUserDefaults(with: context)
         } else if let initialContext {

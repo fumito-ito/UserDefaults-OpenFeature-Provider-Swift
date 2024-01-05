@@ -11,7 +11,7 @@ import OpenFeature
 extension Array where Element == Any {
     func wrapInValue() throws -> Array<Value> {
         try self.map { value in
-            switch UserDefaultsOpenFeatureProvider.detectType(from: value) {
+            switch TypeDetector.detectType(from: value) {
             case .boolean:
                 guard let v = value as? Bool else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Bool")
