@@ -172,8 +172,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             throw OpenFeatureError.flagNotFoundError(key: key)
         }
 
-        guard let deteString = defaults.string(forKey: key),
-              let value = Self.dateFormatter.date(from: deteString) else {
+        guard let value = defaults.object(forKey: key) as? Date else {
             throw OpenFeatureError.parseError(message: "Cannot get datetime string from UserDefaults with key: \(key)")
         }
 
@@ -193,10 +192,8 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             throw OpenFeatureError.flagNotFoundError(key: key)
         }
 
-        guard let jsonString = defaults.string(forKey: key),
-              let jsonData = jsonString.data(using: .utf8),
-              let value = try? JSONDecoder().decode(Value.self, from: jsonData),
-              case .list(let array) = value else {
+        guard let anys = defaults.object(forKey: key) as? [Any],
+              let array = try? anys.wrapInValue() else {
             throw OpenFeatureError.parseError(message: "Cannot get collection of Value type from UserDefaults with key: \(key)")
         }
 

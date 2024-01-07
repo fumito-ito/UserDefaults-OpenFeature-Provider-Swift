@@ -47,7 +47,6 @@ extension UserDefaultsOpenFeatureProvider {
         defaults.set(condition(context.getTargetingKey()), forKey: key)
     }
 
-    // TODO: 日付がどのようなフォーマットで文字列に変換されて保存されるのかドキュメントで補足する
     func setDateValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Date), with context: EvaluationContext?) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
@@ -55,33 +54,26 @@ extension UserDefaultsOpenFeatureProvider {
 
         let defaults = try getCurrentUserDefaults(with: context)
         let date = condition(context.getTargetingKey())
-        let dateString = Self.dateFormatter.string(from: date)
-        defaults.set(dateString, forKey: key)
+        defaults.set(date, forKey: key)
     }
 
-    // TODO: 当然 [Value] でないほうが汎用性が高いので変更を検討する
-    // TODO: [Value]がJSONStringに変換されて保存されている旨をドキュメントで補足する
-    func setListValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [Value]), with context: EvaluationContext?) throws {
+    func setListValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [Any]), with context: EvaluationContext?) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
-        let jsonData = try Self.jsonEncoder.encode(value)
-        defaults.set(String(data: jsonData, encoding: .utf8), forKey: key)
+        defaults.set(value, forKey: key)
     }
 
-    // TODO: 当然 [String: Any] のほうが汎用性が高いので変更を検討する
-    // TODO: [String: Value]がJSONStringに変換されて保存されている旨をドキュメントで補足する
-    func setStructureValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [String: Value]), with context: EvaluationContext?) throws {
+    func setStructureValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [String: Any]), with context: EvaluationContext?) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
-        let jsonData = try Self.jsonEncoder.encode(value)
-        defaults.set(String(data: jsonData, encoding: .utf8), forKey: key)
+        defaults.set(value, forKey: key)
     }
 }
