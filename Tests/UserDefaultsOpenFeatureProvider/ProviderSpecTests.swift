@@ -175,59 +175,9 @@ final class ProviderSpecTests: XCTestCase {
     /// https://openfeature.dev/specification/sections/providers#condition-2281
     func testGenerics() throws {}
 
-    // MARK: Provider hooks
-
-    ///
-    ///
-    /// - Requirement 2.3.1: The provider interface MUST define a provider hook mechanism which can be optionally implemented in order to add hook instances to the evaluation life-cycle.
-    /// https://openfeature.dev/specification/sections/providers#requirement-231
-    func testSupportHooksAlongWithLifecycle() throws {}
-
-    ///
-    ///
-    /// - Requirement 2.3.2: In cases of normal execution, the provider MUST NOT populate the resolution details structure's error message field, or otherwise must populate it with a null or falsy value.
-    /// https://openfeature.dev/specification/sections/providers#requirement-232
-    func testHookContainsNoErrorIfNormaly() throws {}
-
-    ///
-    ///
-    /// - Requirement 2.3.3: In cases of abnormal execution, the resolution details structure's error message field MAY contain a string containing additional detail about the nature of the error.
-    /// https://openfeature.dev/specification/sections/providers#requirement-233
-    func testHookContainsErrorIfAbnormaly() throws {}
+    // MARK: Provider hooks (no implementation)
 
     // MARK: Initialization
-
-    private struct TestContext: EvaluationContext {
-        var suiteName: String? = "suiteName"
-
-        func getTargetingKey() -> String {
-            ""
-        }
-
-        func setTargetingKey(targetingKey: String) {
-            // no implementation
-        }
-
-        func keySet() -> Set<String> {
-            Set()
-        }
-
-        func getValue(key: String) -> OpenFeature.Value? {
-            if let suiteName, key == userDefaultsOpenFeatureProviderSuiteNameKey {
-                return .string(suiteName)
-            }
-
-            return nil
-        }
-
-        func asMap() -> [String : OpenFeature.Value] {
-            [:]
-        }
-
-        func asObjectMap() -> [String : AnyHashable?] {
-            [:]
-        }
-    }
 
     ///
     ///
@@ -237,7 +187,7 @@ final class ProviderSpecTests: XCTestCase {
         let userDefaultsProvider = UserDefaultsOpenFeatureProvider()
 
         // tests before initialization
-        XCTAssertNil(userDefaultsProvider.initialContext, "Before initialization, provider has no initial context")
+        XCTAssertNil(userDefaultsProvider.defaultContext, "Before initialization, provider has no initial context")
 
         let boolResult = try provider.getBooleanEvaluation(key: ProviderSpecTestCase.trueKey.rawValue, defaultValue: false, context: MutableContext())
         XCTAssertEqual(true, boolResult.value, "Before initialization, provider uses UserDefaults.standard instance")
@@ -246,7 +196,7 @@ final class ProviderSpecTests: XCTestCase {
         userDefaultsProvider.initialize(initialContext: TestContext())
 
         // test after initialization
-        XCTAssertNotNil(userDefaultsProvider.initialContext, "After initialization, provider has some initial context")
+        XCTAssertNotNil(userDefaultsProvider.defaultContext, "After initialization, provider has some initial context")
 
         XCTAssertThrowsError(
             try provider.getBooleanEvaluation(key: ProviderSpecTestCase.trueKey.rawValue, defaultValue: false, context: nil),
@@ -283,9 +233,7 @@ final class ProviderSpecTests: XCTestCase {
     }
 
 
-    // MARK: Shutdown
-
-    // no implementation
+    // MARK: Shutdown (no implementation)
 
     // MARK: Provider context reconciliation
 

@@ -12,7 +12,7 @@ extension UserDefaultsOpenFeatureProvider {
     private static let jsonEncoder = JSONEncoder()
 
     func setBooleanValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Bool), with context: EvaluationContext?) throws {
-        guard let context = [context, initialContext].compactMap({ $0 }).first else {
+        guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
@@ -21,7 +21,7 @@ extension UserDefaultsOpenFeatureProvider {
     }
 
     func setStringValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> String), with context: EvaluationContext?) throws {
-        guard let context = [context, initialContext].compactMap({ $0 }).first else {
+        guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
@@ -30,7 +30,7 @@ extension UserDefaultsOpenFeatureProvider {
     }
 
     func setIntegerValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Int64), with context: EvaluationContext?) throws {
-        guard let context = [context, initialContext].compactMap({ $0 }).first else {
+        guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
@@ -39,7 +39,7 @@ extension UserDefaultsOpenFeatureProvider {
     }
 
     func setDoubleValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Double), with context: EvaluationContext?) throws {
-        guard let context = [context, initialContext].compactMap({ $0 }).first else {
+        guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
@@ -49,7 +49,7 @@ extension UserDefaultsOpenFeatureProvider {
 
     // TODO: 日付がどのようなフォーマットで文字列に変換されて保存されるのかドキュメントで補足する
     func setDateValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Date), with context: EvaluationContext?) throws {
-        guard let context = [context, initialContext].compactMap({ $0 }).first else {
+        guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
@@ -62,7 +62,7 @@ extension UserDefaultsOpenFeatureProvider {
     // TODO: 当然 [Value] でないほうが汎用性が高いので変更を検討する
     // TODO: [Value]がJSONStringに変換されて保存されている旨をドキュメントで補足する
     func setListValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [Value]), with context: EvaluationContext?) throws {
-        guard let context = [context, initialContext].compactMap({ $0 }).first else {
+        guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 
@@ -75,7 +75,7 @@ extension UserDefaultsOpenFeatureProvider {
     // TODO: 当然 [String: Any] のほうが汎用性が高いので変更を検討する
     // TODO: [String: Value]がJSONStringに変換されて保存されている旨をドキュメントで補足する
     func setStructureValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [String: Value]), with context: EvaluationContext?) throws {
-        guard let context = [context, initialContext].compactMap({ $0 }).first else {
+        guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
 

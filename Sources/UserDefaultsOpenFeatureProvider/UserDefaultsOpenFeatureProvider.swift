@@ -9,7 +9,8 @@ public let userDefaultsOpenFeatureProviderOldContextKey: String = "userDefaultsO
 public let userDefaultsOpenFeatureProviderNewContextKey: String = "userDefaultsOpenFeatureProviderNewContextKey"
 
 public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
-
+    
+    /// DateFormatter to format date value
     public static let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
@@ -18,11 +19,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 
         return dateFormatter
     }()
-
+    
+    /// Context used for default
     private var defaultDefaults: UserDefaults?
 
-    public private(set) var initialContext: EvaluationContext?
-
+    public private(set) var defaultContext: EvaluationContext?
+    
+    /// Current provider status
     public private(set) var status: UserDefaultsOpenFeatureProviderStatus = .notReady {
         didSet {
             switch status {
@@ -37,14 +40,18 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             }
         }
     }
-
-    // TODO: Hooksのハンドリングを書く
+    
+    /// Hooks for this provider
     public var hooks: [any Hook] = []
-
+    
+    /// Meta data for this provider
     public let metadata: ProviderMetadata = UserDefaultsOpenFeatureProviderMetadata()
 
+    /// Called by OpenFeatureAPI whenever the new Provider is registered
+    ///
+    /// - Parameter initialContext: context to initialize provider
     public func initialize(initialContext: EvaluationContext?) {
-        self.initialContext = initialContext
+        self.defaultContext = initialContext
 
         guard let initialContext else {
             defaultDefaults = .standard
@@ -61,6 +68,11 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         status = .ready
     }
     
+    /// Change context for provider
+    ///
+    /// - Parameters:
+    ///   - oldContext: old context
+    ///   - newContext: new context to set
     public func onContextSet(oldContext: EvaluationContext?, newContext: EvaluationContext) {
         initialize(initialContext: newContext)
 
@@ -70,6 +82,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         ])
     }
     
+    /// Evaluate the flag for key as Boolean value
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getBooleanEvaluation(key: String, defaultValue: Bool, context: EvaluationContext?) throws -> ProviderEvaluation<Bool> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard defaults.has(key) else {
@@ -80,6 +99,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         return ProviderEvaluation(value: value, variant: .boolean(value), reason: .cached)
     }
     
+    /// Evaluate the flag for key as String value
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getStringEvaluation(key: String, defaultValue: String, context: EvaluationContext?) throws -> ProviderEvaluation<String> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard defaults.has(key) else {
@@ -99,6 +125,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         return ProviderEvaluation(value: value, variant: .string(value), reason: reason)
     }
     
+    /// Evaluate the flag for key as Int64 value
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getIntegerEvaluation(key: String, defaultValue: Int64, context: EvaluationContext?) throws -> ProviderEvaluation<Int64> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard defaults.has(key) else {
@@ -109,6 +142,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         return ProviderEvaluation(value: value, variant: .integer(value), reason: .cached)
     }
     
+    /// Evaluate the flag for key as Double value
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getDoubleEvaluation(key: String, defaultValue: Double, context: EvaluationContext?) throws -> ProviderEvaluation<Double> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard defaults.has(key) else {
@@ -119,6 +159,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         return ProviderEvaluation(value: value, variant: .double(value), reason: .cached)
     }
 
+    /// Evaluate the flag for key as Date value
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getDateEvaluation(key: String, defaultValue: Date, context: EvaluationContext?) throws -> ProviderEvaluation<Date> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard defaults.has(key) else {
@@ -133,6 +180,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         return ProviderEvaluation(value: value, variant: .date(value), reason: .cached)
     }
 
+    /// Evaluate the flag for key as List of `Value`
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getListEvaluation(key: String, defaultValue: [Value], context: EvaluationContext?) throws -> ProviderEvaluation<[Value]> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard defaults.has(key) else {
@@ -149,6 +203,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         return ProviderEvaluation(value: array, variant: .list(array), reason: .cached)
     }
 
+    /// Evaluate the flag for key as `Value` dictionary
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getStructureEvaluation(key: String, defaultValue: [String: Value], context: EvaluationContext?) throws -> ProviderEvaluation<[String: Value]> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard defaults.has(key) else {
@@ -163,6 +224,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         return ProviderEvaluation(value: wrappedDictionary, variant: .structure(wrappedDictionary), reason: .cached)
     }
 
+    /// Evaluate the flag for key as `Value`
+    ///
+    /// - Parameters:
+    ///   - key: Key for the flag
+    ///   - defaultValue: Default value for the flag
+    ///   - context: Context for evaluation. If not set, initialized context is used.
+    /// - Returns: Evaluation result for the flag
     public func getObjectEvaluation(key: String, defaultValue: Value, context: EvaluationContext?) throws -> ProviderEvaluation<Value> {
         let defaults = try getCurrentUserDefaults(with: context)
         guard let object = defaults.object(forKey: key) else {
@@ -215,7 +283,6 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 
         case .dictionary:
             guard let value = defaultValue == .null ? [:] : defaultValue.asStructure() else {
-                // TODO: このエラーを使うかは一考の余地がある
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
@@ -228,7 +295,13 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             throw OpenFeatureError.typeMismatchError
         }
     }
-
+    
+    /// Returns a default value or throws an exception, depending on the arguments specified
+    ///
+    /// - Parameters:
+    ///   - defaultValue: Default value to be inspected
+    ///   - error: Error to throw
+    /// - Returns: If default value is null, just return `Value.null`. If not, throw error.
     private func returnNullEvaluationIfDefaultValueIsNull(defaultValue: Value, withError error: OpenFeatureError) throws -> ProviderEvaluation<Value> {
         if defaultValue.isNull() {
             return ProviderEvaluation(
@@ -246,8 +319,8 @@ extension UserDefaultsOpenFeatureProvider {
     func getCurrentUserDefaults(with context: EvaluationContext?) throws -> UserDefaults {
         if let context {
             return try getUserDefaults(with: context)
-        } else if let initialContext {
-            return try getUserDefaults(with: initialContext)
+        } else if let defaultContext {
+            return try getUserDefaults(with: defaultContext)
         } else if let defaultDefaults {
             return defaultDefaults
         } else {
@@ -266,7 +339,9 @@ extension UserDefaultsOpenFeatureProvider {
             throw OpenFeatureError.generalError(message: "Cannot initialize UserDefaults with suite name: \(suiteName), in context: \(context.asObjectMap())")
         }
     }
+}
 
+extension UserDefaultsOpenFeatureProvider {
     func emit(event: ProviderEvent, error: Error? = nil, details: [String: Any]? = nil) {
         OpenFeatureAPI.shared.emitEvent(event, provider: self, error: error, details: details)
     }
