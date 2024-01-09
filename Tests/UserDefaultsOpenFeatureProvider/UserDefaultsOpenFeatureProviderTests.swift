@@ -161,4 +161,63 @@ final class UserDefaultsOpenFeatureProviderTests: XCTestCase {
 
         XCTAssertThrowsError(try provider.getStructureEvaluation(key: wrongKey, defaultValue: [:], context: MutableContext()))
     }
+
+    func testSetters() throws {
+        let appendedBoolKey = "appendedBoolKey"
+        try provider.setBooleanValue(forKey: appendedBoolKey, givenCondition: { _ in true }, with: TestContext())
+        XCTAssertEqual(try provider.getBooleanEvaluation(key: appendedBoolKey, defaultValue: false, context: TestContext()).value, true)
+
+        let appendedStringKey = "appendedStringKey"
+        try provider.setStringValue(forKey: appendedStringKey, givenCondition: { _ in "appended" }, with: TestContext())
+        XCTAssertEqual(try provider.getStringEvaluation(key: appendedStringKey, defaultValue: "", context: TestContext()).value, "appended")
+
+        let appendedIntKey = "appendedIntKey"
+        try provider.setIntegerValue(forKey: appendedIntKey, givenCondition: { _ in 1_000 }, with: TestContext())
+        XCTAssertEqual(try provider.getIntegerEvaluation(key: appendedIntKey, defaultValue: 0, context: TestContext()).value, 1_000)
+
+        let appendedDoubleKey = "appendedDoubleKey"
+        try provider.setDoubleValue(forKey: appendedDoubleKey, givenCondition: { _ in 2.71828 }, with: TestContext())
+        XCTAssertEqual(try provider.getDoubleEvaluation(key: appendedDoubleKey, defaultValue: 0.0, context: TestContext()).value, 2.71828)
+
+        let appendedDateKey = "appendedDateKey"
+        try provider.setDateValue(forKey: appendedDateKey, givenCondition: { _ in Date(timeIntervalSince1970: 1_000_000) }, with: TestContext())
+        XCTAssertEqual(try provider.getDateEvaluation(key: appendedDateKey, defaultValue: Date(), context: TestContext()).value, Date(timeIntervalSince1970: 1_000_000))
+
+        let appendedArrayKey = "appendedArrayKey"
+        try provider.setListValue(forKey: appendedArrayKey, givenCondition: { _ in [true, "appended", 1_000, 2.71828, Date(timeIntervalSince1970: 1_000_000)] }, with: TestContext())
+        XCTAssertEqual(
+            try provider.getListEvaluation(key: appendedArrayKey, defaultValue: [], context: TestContext()).value,
+            [
+                .boolean(true),
+                .string("appended"),
+                .integer(1_000),
+                .double(2.71828),
+                .date(Date(timeIntervalSince1970: 1_000_000))
+            ]
+        )
+
+        let appendedStructureKey = "appendedStructureKey"
+        try provider.setStructureValue(
+            forKey: appendedStructureKey,
+            givenCondition: { _ in
+                [
+                    "boolean": true,
+                    "string": "appended",
+                    "integer": 1_000,
+                    "double": 2.71828,
+                    "date": Date(timeIntervalSince1970: 1_000_000),
+                ]
+            },
+            with: TestContext())
+        XCTAssertEqual(
+            try provider.getStructureEvaluation(key: appendedStructureKey, defaultValue: [:], context: TestContext()).value,
+            [
+                "boolean": .boolean(true),
+                "string": .string("appended"),
+                "integer": .integer(1_000),
+                "double": .double(2.71828),
+                "date": .date(Date(timeIntervalSince1970: 1_000_000)),
+            ]
+        )
+    }
 }

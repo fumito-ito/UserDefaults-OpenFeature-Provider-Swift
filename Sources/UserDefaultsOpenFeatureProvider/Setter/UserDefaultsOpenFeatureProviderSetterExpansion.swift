@@ -19,7 +19,7 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - key: key to set value
     ///   - condition: function to calculate the value to be set based on the targeting key given as an argument.
     ///   - context: context for provider
-    public func setBooleanValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Bool), with context: EvaluationContext?) throws {
+    public func setBooleanValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Bool), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
@@ -38,7 +38,7 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - key: key to set value
     ///   - condition: function to calculate the value to be set based on the targeting key given as an argument.
     ///   - context: context for provider
-    public func setStringValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> String), with context: EvaluationContext?) throws {
+    public func setStringValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> String), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
@@ -57,7 +57,7 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - key: key to set value
     ///   - condition: function to calculate the value to be set based on the targeting key given as an argument.
     ///   - context: context for provider
-    public func setIntegerValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Int64), with context: EvaluationContext?) throws {
+    public func setIntegerValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Int64), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
@@ -76,7 +76,7 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - key: key to set value
     ///   - condition: function to calculate the value to be set based on the targeting key given as an argument.
     ///   - context: context for provider
-    public func setDoubleValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Double), with context: EvaluationContext?) throws {
+    public func setDoubleValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Double), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
@@ -95,7 +95,7 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - key: key to set value
     ///   - condition: function to calculate the value to be set based on the targeting key given as an argument.
     ///   - context: context for provider
-    public func setDateValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Date), with context: EvaluationContext?) throws {
+    public func setDateValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Date), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
@@ -115,7 +115,7 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - key: key to set value
     ///   - condition: function to calculate the value to be set based on the targeting key given as an argument.
     ///   - context: context for provider
-    public func setListValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [Any]), with context: EvaluationContext?) throws {
+    public func setListValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [Any]), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
@@ -135,7 +135,7 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - key: key to set value
     ///   - condition: function to calculate the value to be set based on the targeting key given as an argument.
     ///   - context: context for provider
-    public func setStructureValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [String: Any]), with context: EvaluationContext?) throws {
+    public func setStructureValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [String: Any]), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
             throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
         }
