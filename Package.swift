@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "git@github.com:open-feature/swift-sdk.git",
+            url: "https://github.com/open-feature/swift-sdk.git",
             .upToNextMajor(from: "0.0.2")
         ),
     ],
