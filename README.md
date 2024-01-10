@@ -1,3 +1,5 @@
+[![Swift](https://github.com/fumito-ito/UserDefaults-OpenFeature-Provider-Swift/actions/workflows/swift.yml/badge.svg?branch=main)](https://github.com/fumito-ito/UserDefaults-OpenFeature-Provider-Swift/actions/workflows/swift.yml)
+
 # UserDefaults OpenFeature Provider for Swift
 
 This is yet another OpenFeature provider for UserDefaults.
