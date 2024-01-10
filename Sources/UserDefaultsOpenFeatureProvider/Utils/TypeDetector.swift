@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TypeDetector {
+enum TypeDetector {
     enum DetectedType {
         case boolean
         case string
@@ -29,28 +29,29 @@ struct TypeDetector {
             return .string
 
         case CFNumberGetTypeID():
+            // swiftlint:disable:next force_cast
             let numberType = CFNumberGetType((object as! CFNumber))
             switch numberType {
             case
-                    .sInt8Type,
-                    .sInt16Type,
-                    .sInt32Type,
-                    .sInt64Type,
-                    .charType,
-                    .shortType,
-                    .intType,
-                    .longType,
-                    .longLongType,
-                    .cfIndexType,
-                    .nsIntegerType:
+                .sInt8Type,
+                .sInt16Type,
+                .sInt32Type,
+                .sInt64Type,
+                .charType,
+                .shortType,
+                .intType,
+                .longType,
+                .longLongType,
+                .cfIndexType,
+                .nsIntegerType:
                 return .integer
 
             case
-                    .float32Type,
-                    .float64Type,
-                    .floatType,
-                    .doubleType,
-                    .cgFloatType:
+                .float32Type,
+                .float64Type,
+                .floatType,
+                .doubleType,
+                .cgFloatType:
                 return .double
 
             @unknown default:

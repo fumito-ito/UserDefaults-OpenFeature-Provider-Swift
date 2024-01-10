@@ -9,49 +9,51 @@ import Foundation
 import OpenFeature
 
 extension Array where Element == Any {
-    func wrapInValue() throws -> Array<Value> {
+    func wrapInValue() throws -> [Value] {
         try self.map { value in
             switch TypeDetector.detectType(from: value) {
             case .boolean:
-                guard let v = value as? Bool else {
+                guard let typedValue = value as? Bool else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Bool")
                 }
-                return .boolean(v)
+                return .boolean(typedValue)
 
             case .string:
-                guard let v = value as? String else {
+                guard let typedValue = value as? String else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as String")
                 }
-                return .string(v)
+                return .string(typedValue)
 
             case .integer:
-                guard let v = value as? Int64 else {
+                guard let typedValue = value as? Int64 else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Int64")
                 }
-                return .integer(v)
+                return .integer(typedValue)
 
             case .double:
-                guard let v = value as? Double else {
+                guard let typedValue = value as? Double else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Double")
                 }
-                return .double(v)
+                return .double(typedValue)
 
             case .date:
-                guard let v = value as? Date else {
+                guard let typedValue = value as? Date else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Date")
                 }
-                return .date(v)
+                return .date(typedValue)
 
             case .array:
-                guard let v = value as? [Any],
-                      let wrappedArray = try? v.wrapInValue() else {
+                guard
+                    let typedValue = value as? [Any],
+                    let wrappedArray = try? typedValue.wrapInValue() else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Array")
                 }
                 return .list(wrappedArray)
 
             case .dictionary:
-                guard let v = value as? Dictionary<String, Any>,
-                      let wrappedDictionary = try? v.wrapInValue() else {
+                guard
+                    let typedValue = value as? [String: Any],
+                    let wrappedDictionary = try? typedValue.wrapInValue() else {
                     throw OpenFeatureError.parseError(message: "Cannot parse \(value) as Dictionary")
                 }
                 return .structure(wrappedDictionary)

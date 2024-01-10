@@ -32,11 +32,11 @@ struct TestContext: EvaluationContext {
         return nil
     }
 
-    func asMap() -> [String : OpenFeature.Value] {
+    func asMap() -> [String: OpenFeature.Value] {
         [:]
     }
 
-    func asObjectMap() -> [String : AnyHashable?] {
+    func asObjectMap() -> [String: AnyHashable?] {
         [:]
     }
 }

@@ -10,7 +10,7 @@ import OpenFeature
 
 extension UserDefaultsOpenFeatureProvider {
     private static let jsonEncoder = JSONEncoder()
-    
+
     /// Sets the Bool value to the provider's specified key as a flag
     ///
     /// If a value is set through this function, the `PROVIDER_CONFIGURATION_CHANGED` event is sent.
@@ -21,7 +21,9 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - context: context for provider
     public func setBooleanValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Bool), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
-            throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
+            throw OpenFeatureError.generalError(
+                message: "`\(#function)` needs context or initial context to define targeting key"
+            )
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
@@ -40,7 +42,9 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - context: context for provider
     public func setStringValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> String), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
-            throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
+            throw OpenFeatureError.generalError(
+                message: "`\(#function)` needs context or initial context to define targeting key"
+            )
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
@@ -59,7 +63,9 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - context: context for provider
     public func setIntegerValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Int64), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
-            throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
+            throw OpenFeatureError.generalError(
+                message: "`\(#function)` needs context or initial context to define targeting key"
+            )
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
@@ -78,7 +84,9 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - context: context for provider
     public func setDoubleValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Double), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
-            throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
+            throw OpenFeatureError.generalError(
+                message: "`\(#function)` needs context or initial context to define targeting key"
+            )
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
@@ -97,7 +105,9 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - context: context for provider
     public func setDateValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> Date), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
-            throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
+            throw OpenFeatureError.generalError(
+                message: "`\(#function)` needs context or initial context to define targeting key"
+            )
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
@@ -117,7 +127,9 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - context: context for provider
     public func setListValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [Any]), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
-            throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
+            throw OpenFeatureError.generalError(
+                message: "`\(#function)` needs context or initial context to define targeting key"
+            )
         }
 
         let defaults = try getCurrentUserDefaults(with: context)
@@ -137,7 +149,9 @@ extension UserDefaultsOpenFeatureProvider {
     ///   - context: context for provider
     public func setStructureValue(forKey key: String, givenCondition condition: @escaping ((_ targetingKey: String) -> [String: Any]), with context: EvaluationContext? = nil) throws {
         guard let context = [context, defaultContext].compactMap({ $0 }).first else {
-            throw OpenFeatureError.generalError(message: "`\(#function)` needs context or initial context to define targeting key")
+            throw OpenFeatureError.generalError(
+                message: "`\(#function)` needs context or initial context to define targeting key"
+            )
         }
 
         let defaults = try getCurrentUserDefaults(with: context)

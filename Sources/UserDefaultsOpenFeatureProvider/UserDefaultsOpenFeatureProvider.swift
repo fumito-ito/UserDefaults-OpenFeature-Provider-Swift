@@ -4,27 +4,30 @@
 import OpenFeature
 import Foundation
 
+// swiftlint:disable:next identifier_name
 public let userDefaultsOpenFeatureProviderSuiteNameKey: String = "userDefaultsOpenFeatureProviderSuiteNameKey"
+// swiftlint:disable:next identifier_name
 public let userDefaultsOpenFeatureProviderOldContextKey: String = "userDefaultsOpenFeatureProviderOldContextKey"
+// swiftlint:disable:next identifier_name
 public let userDefaultsOpenFeatureProviderNewContextKey: String = "userDefaultsOpenFeatureProviderNewContextKey"
 
 public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
-    
     /// DateFormatter to format date value
     public static let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        // swiftlint:disable:next force_unwrapping
         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)!
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
         return dateFormatter
     }()
-    
+
     /// Context used for default
     private var defaultDefaults: UserDefaults?
 
     public private(set) var defaultContext: EvaluationContext?
-    
+
     /// Current provider status
     public private(set) var status: UserDefaultsOpenFeatureProviderStatus = .notReady {
         didSet {
@@ -40,10 +43,10 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             }
         }
     }
-    
+
     /// Hooks for this provider
     public var hooks: [any Hook] = []
-    
+
     /// Meta data for this provider
     public let metadata: ProviderMetadata = UserDefaultsOpenFeatureProviderMetadata()
 
@@ -59,7 +62,9 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             return
         }
 
-        guard case .string(let suiteName) = initialContext.getValue(key: userDefaultsOpenFeatureProviderSuiteNameKey) else {
+        guard
+            case .string(let suiteName) = initialContext
+                .getValue(key: userDefaultsOpenFeatureProviderSuiteNameKey) else {
             status = .error
             return
         }
@@ -67,7 +72,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         defaultDefaults = UserDefaults(suiteName: suiteName)
         status = .ready
     }
-    
+
     /// Change context for provider
     ///
     /// - Parameters:
@@ -81,7 +86,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             userDefaultsOpenFeatureProviderNewContextKey: newContext as Any
         ])
     }
-    
+
     /// Evaluate the flag for key as Boolean value
     ///
     /// - Parameters:
@@ -98,7 +103,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         let value = defaults.bool(forKey: key)
         return ProviderEvaluation(value: value, variant: .boolean(value), reason: .cached)
     }
-    
+
     /// Evaluate the flag for key as String value
     ///
     /// - Parameters:
@@ -114,8 +119,8 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 
         let value: String
         let reason: Reason
-        if let v = defaults.string(forKey: key) {
-            value = v
+        if let wrappedValue = defaults.string(forKey: key) {
+            value = wrappedValue
             reason = .cached
         } else {
             value = defaultValue
@@ -124,7 +129,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 
         return ProviderEvaluation(value: value, variant: .string(value), reason: reason)
     }
-    
+
     /// Evaluate the flag for key as Int64 value
     ///
     /// - Parameters:
@@ -141,7 +146,7 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         let value = Int64(defaults.integer(forKey: key))
         return ProviderEvaluation(value: value, variant: .integer(value), reason: .cached)
     }
-    
+
     /// Evaluate the flag for key as Double value
     ///
     /// - Parameters:
@@ -192,9 +197,12 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             throw OpenFeatureError.flagNotFoundError(key: key)
         }
 
-        guard let anys = defaults.object(forKey: key) as? [Any],
-              let array = try? anys.wrapInValue() else {
-            throw OpenFeatureError.parseError(message: "Cannot get collection of Value type from UserDefaults with key: \(key)")
+        guard
+            let anys = defaults.object(forKey: key) as? [Any],
+            let array = try? anys.wrapInValue() else {
+            throw OpenFeatureError.parseError(
+                message: "Cannot get collection of Value type from UserDefaults with key: \(key)"
+            )
         }
 
         return ProviderEvaluation(value: array, variant: .list(array), reason: .cached)
@@ -214,13 +222,16 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
         }
 
         guard let dictionary = defaults.dictionary(forKey: key) else {
-            throw OpenFeatureError.parseError(message: "Cannot get data as a `Dictionary<String, Any>` object from UserDefaults with key: \(key)")
+            throw OpenFeatureError.parseError(
+                message: "Cannot get data as a `Dictionary<String, Any>` object from UserDefaults with key: \(key)"
+            )
         }
 
         let wrappedDictionary = try dictionary.wrapInValue()
         return ProviderEvaluation(value: wrappedDictionary, variant: .structure(wrappedDictionary), reason: .cached)
     }
 
+    // swiftlint:disable function_body_length
     /// Evaluate the flag for key as `Value`
     ///
     /// - Parameters:
@@ -237,53 +248,61 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
 
         switch TypeDetector.detectType(from: object) {
         case .boolean:
-            guard let value = defaultValue == .null ? false : defaultValue.asBoolean() else {
+            let value = defaultValue.asBoolean() ?? false
+            guard
+                let evaluation = try? getBooleanEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation else {
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
-            return try getBooleanEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation
+            return evaluation
 
         case .string:
-            guard let value = defaultValue == .null ? "" : defaultValue.asString() else {
+            let value = defaultValue.asString() ?? ""
+            guard let evaluation = try? getStringEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation else {
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
-            return try getStringEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation
+            return evaluation
 
         case .integer:
-            guard let value = defaultValue == .null ? 0 : defaultValue.asInteger() else {
+            let value = defaultValue.asInteger() ?? 0
+            guard let evaluation = try? getIntegerEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation else {
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
-            return try getIntegerEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation
+            return evaluation
 
         case .double:
-            guard let value = defaultValue == .null ? 0.0 : defaultValue.asDouble() else {
+            let value = defaultValue.asDouble() ?? 0.0
+            guard let evaluation = try? getDoubleEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation else {
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
-            return try getDoubleEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation
+            return evaluation
 
         case .date:
-            guard let value = defaultValue == .null ? Date() : defaultValue.asDate() else {
+            let value = defaultValue.asDate() ?? Date()
+            guard let evaluation = try? getDateEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation else {
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
-            return try getDateEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation
+            return evaluation
 
         case .array:
-            guard let value = defaultValue == .null ? [] : defaultValue.asList() else {
+            let value = defaultValue.asList() ?? []
+            guard let evaluation = try? getListEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation else {
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
-            return try getListEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation
+            return evaluation
 
         case .dictionary:
-            guard let value = defaultValue == .null ? [:] : defaultValue.asStructure() else {
+            let value = defaultValue.asStructure() ?? [:]
+            guard let evaluation = try? getStructureEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation else {
                 let error = OpenFeatureError.typeMismatchError
                 return try returnNullEvaluationIfDefaultValueIsNull(defaultValue: defaultValue, withError: error)
             }
-            return try getStructureEvaluation(key: key, defaultValue: value, context: context).asValueEvaluation
+            return evaluation
 
         case .null:
             return ProviderEvaluation(value: .null, variant: .null, reason: .cached)
@@ -292,7 +311,8 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
             throw OpenFeatureError.typeMismatchError
         }
     }
-    
+    // swiftlint:enable function_body_length
+
     /// Returns a default value or throws an exception, depending on the arguments specified
     ///
     /// - Parameters:
@@ -333,7 +353,10 @@ extension UserDefaultsOpenFeatureProvider {
         if let defaults = UserDefaults(suiteName: suiteName) {
             return defaults
         } else {
-            throw OpenFeatureError.generalError(message: "Cannot initialize UserDefaults with suite name: \(suiteName), in context: \(context.asObjectMap())")
+            let contextObject = context.asObjectMap()
+            throw OpenFeatureError.generalError(
+                message: "Cannot initialize UserDefaults with suite name: \(suiteName), in context: \(contextObject)"
+            )
         }
     }
 }

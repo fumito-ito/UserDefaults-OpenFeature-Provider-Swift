@@ -18,7 +18,13 @@ extension ProviderEvaluation {
         errorCode: ErrorCode? = nil,
         errorMessage: String? = nil
     ) {
-        self.init(value: value, variant: variant.description, reason: reason.rawValue, errorCode: errorCode, errorMessage: errorMessage)
+        self.init(
+            value: value,
+            variant: variant.description,
+            reason: reason.rawValue,
+            errorCode: errorCode,
+            errorMessage: errorMessage
+        )
     }
 }
 
@@ -95,7 +101,7 @@ extension ProviderEvaluation where T == [Value] {
     }
 }
 
-extension ProviderEvaluation where T == Dictionary<String, Value> {
+extension ProviderEvaluation where T == [String: Value] {
     var asValueEvaluation: ProviderEvaluation<Value> {
         ProviderEvaluation<Value>(
             value: Value.structure(self.value),
