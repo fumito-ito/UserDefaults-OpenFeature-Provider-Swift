@@ -26,7 +26,8 @@ let package = Package(
             dependencies: [
                 .product(name: "OpenFeature", package: "swift-sdk"),
             ],
-            path: "Sources/UserDefaultsOpenFeatureProvider"),
+            path: "Sources/UserDefaultsOpenFeatureProvider",
+            resources: [.copy("PrivacyInfo.xcprivacy")]),
         .testTarget(
             name: "UserDefaultsOpenFeatureProviderTests",
             dependencies: ["UserDefaultsOpenFeatureProvider"]),
