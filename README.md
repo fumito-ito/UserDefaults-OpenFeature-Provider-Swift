@@ -22,7 +22,7 @@ dependencies: [
 and in the target dependencies section add:
 
 ```swift
-.product(name: "UserDefaultsOpenFeatureProvider", package: "UserDefaultsOpenFeatureProvider"),
+.product(name: "UserDefaultsOpenFeatureProvider", package: "UserDefaults-OpenFeature-Provider-Swift"),
 ```
 
 ## Usage
