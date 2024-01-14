@@ -50,6 +50,8 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
     /// Meta data for this provider
     public let metadata: ProviderMetadata = UserDefaultsOpenFeatureProviderMetadata()
 
+    public init() {}
+
     /// Called by OpenFeatureAPI whenever the new Provider is registered
     ///
     /// - Parameter initialContext: context to initialize provider
