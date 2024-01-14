@@ -35,13 +35,15 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "git@github.com:fumito-ito/UserDefaults-OpenFeature-Provider-Swift.git", "0.0.1"..<"1.0.0")
+        .package(path: ".."),
+        .package(url: "https://github.com/open-feature/swift-sdk", "0.0.2"..<"1.0.0")
     ],
     targets: [
         .executableTarget(
             name: "AppModule",
             dependencies: [
-                .product(name: "UserDefaultsOpenFeatureProvider", package: "UserDefaults-OpenFeature-Provider-Swift")
+                .product(name: "UserDefaultsOpenFeatureProvider", package: "userdefaults-openfeature-provider-swift"),
+                .product(name: "OpenFeature", package: "swift-sdk")
             ],
             path: "."
         )

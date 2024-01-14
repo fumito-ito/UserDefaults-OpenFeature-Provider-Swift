@@ -8,15 +8,6 @@
         "revision" : "114321e376b3d80e6623c5cbd7e8bcef9c6a86d2",
         "version" : "0.0.2"
       }
-    },
-    {
-      "identity" : "userdefaults-openfeature-provider-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:fumito-ito/UserDefaults-OpenFeature-Provider-Swift.git",
-      "state" : {
-        "revision" : "70fb50b11c16b78c79e93240729ca25b78465006",
-        "version" : "0.0.1"
-      }
     }
   ],
   "version" : 2
