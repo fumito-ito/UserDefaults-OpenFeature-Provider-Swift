@@ -3,6 +3,7 @@
 
 import OpenFeature
 import Foundation
+import Combine
 
 // swiftlint:disable:next identifier_name
 public let userDefaultsOpenFeatureProviderSuiteNameKey: String = "userDefaultsOpenFeatureProviderSuiteNameKey"
@@ -12,6 +13,8 @@ public let userDefaultsOpenFeatureProviderOldContextKey: String = "userDefaultsO
 public let userDefaultsOpenFeatureProviderNewContextKey: String = "userDefaultsOpenFeatureProviderNewContextKey"
 
 public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
+    private let providerEventSubject = PassthroughSubject<ProviderEvent, Never>()
+
     /// DateFormatter to format date value
     public static let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -81,12 +84,23 @@ public final class UserDefaultsOpenFeatureProvider: FeatureProvider {
     ///   - oldContext: old context
     ///   - newContext: new context to set
     public func onContextSet(oldContext: EvaluationContext?, newContext: EvaluationContext) {
-        initialize(initialContext: newContext)
+        self.defaultContext = newContext
 
-        emit(event: .configurationChanged, details: [
-            userDefaultsOpenFeatureProviderOldContextKey: oldContext as Any,
-            userDefaultsOpenFeatureProviderNewContextKey: newContext as Any
-        ])
+        guard
+            case .string(let suiteName) = newContext
+                .getValue(key: userDefaultsOpenFeatureProviderSuiteNameKey) else {
+            status = .error
+            return
+        }
+
+        defaultDefaults = UserDefaults(suiteName: suiteName)
+
+        emit(event: .configurationChanged)
+        status = .ready
+    }
+
+    public func observe() -> AnyPublisher<OpenFeature.ProviderEvent, Never> {
+        providerEventSubject.eraseToAnyPublisher()
     }
 
     /// Evaluate the flag for key as Boolean value
@@ -364,7 +378,7 @@ extension UserDefaultsOpenFeatureProvider {
 }
 
 extension UserDefaultsOpenFeatureProvider {
-    func emit(event: ProviderEvent, error: Error? = nil, details: [String: Any]? = nil) {
-        OpenFeatureAPI.shared.emitEvent(event, provider: self, error: error, details: details)
+    func emit(event: ProviderEvent) {
+        providerEventSubject.send(event)
     }
 }

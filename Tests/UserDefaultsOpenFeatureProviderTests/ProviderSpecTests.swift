@@ -7,9 +7,11 @@
 
 import XCTest
 import OpenFeature
+import Combine
 @testable import UserDefaultsOpenFeatureProvider
 
 final class ProviderSpecTests: XCTestCase {
+    private var cancellables: Set<AnyCancellable>!
 
     let provider: FeatureProvider = {
         UserDefaultsOpenFeatureProvider()
@@ -42,6 +44,11 @@ final class ProviderSpecTests: XCTestCase {
 
     override class func setUp() {
         UserDefaults.standard.register(defaults: defaultRegisterData)
+    }
+
+    override func setUp() {
+        super.setUp()
+        cancellables = []
     }
 
     // MARK: - Feature Provider Interface
@@ -243,76 +250,48 @@ final class ProviderSpecTests: XCTestCase {
     /// https://openfeature.dev/specification/sections/providers#requirement-261
     func testContextChangeEvent() throws {
         let providerToTest = UserDefaultsOpenFeatureProvider()
-
-        OpenFeatureAPI.shared.addHandler(
-            observer: self, selector: #selector(configurationChangedEventEmitted(notification:)), event: .configurationChanged
-        )
-
+        let configurationChangedExpectation = XCTestExpectation(description: "ConfigurationChanged")
         OpenFeatureAPI.shared.setProvider(provider: providerToTest)
+
+        providerToTest.observe()
+            .first() // ready event will be received immidiately after configuration change
+            .sink { event in
+                XCTAssertEqual(event, ProviderEvent.configurationChanged)
+                configurationChangedExpectation.fulfill()
+            }
+            .store(in: &cancellables)
+
         providerToTest.onContextSet(oldContext: TestContext(), newContext: TestContext())
 
         wait(for: [configurationChangedExpectation], timeout: 5)
     }
 
-    let configurationChangedExpectation = XCTestExpectation(description: "ConfigurationChanged")
-
-    func configurationChangedEventEmitted(notification: NSNotification) {
-        configurationChangedExpectation.fulfill()
-
-        let maybeProvider = notification.userInfo?[providerEventDetailsKeyProvider]
-        guard let eventProvider = maybeProvider as? UserDefaultsOpenFeatureProvider else {
-            XCTFail("Provider not passed in notification")
-            return
-        }
-        XCTAssertEqual(eventProvider.metadata.name, provider.metadata.name)
-    }
-
     func testReadyEvent() {
         let providerToTest = UserDefaultsOpenFeatureProvider()
+        let readyExpectation = XCTestExpectation(description: "Ready")
 
-        OpenFeatureAPI.shared.addHandler(
-            observer: self, selector: #selector(readyEventEmitted(notification:)), event: .ready
-        )
+        providerToTest.observe().sink { event in
+            XCTAssertEqual(event, ProviderEvent.ready)
+            readyExpectation.fulfill()
+        }
+        .store(in: &cancellables)
 
         OpenFeatureAPI.shared.setProvider(provider: providerToTest)
         wait(for: [readyExpectation], timeout: 5)
     }
 
-    let readyExpectation = XCTestExpectation(description: "Ready")
-
-    func readyEventEmitted(notification: NSNotification) {
-        readyExpectation.fulfill()
-
-        let maybeProvider = notification.userInfo?[providerEventDetailsKeyProvider]
-        guard let eventProvider = maybeProvider as? UserDefaultsOpenFeatureProvider else {
-            XCTFail("Provider not passed in notification")
-            return
-        }
-        XCTAssertEqual(eventProvider.metadata.name, provider.metadata.name)
-    }
-
     func testErrorEvent() {
         let providerToTest = UserDefaultsOpenFeatureProvider()
+        let errorExpectation = XCTestExpectation(description: "Error")
 
-        OpenFeatureAPI.shared.addHandler(
-            observer: self, selector: #selector(errorEventEmitted(notification:)), event: .error
-        )
+        providerToTest.observe().sink { event in
+            XCTAssertEqual(event, ProviderEvent.error)
+            errorExpectation.fulfill()
+        }
+        .store(in: &cancellables)
 
         let context = TestContext(suiteName: nil)
         providerToTest.initialize(initialContext: context)
         wait(for: [errorExpectation], timeout: 5)
-    }
-
-    let errorExpectation = XCTestExpectation(description: "Error")
-
-    func errorEventEmitted(notification: NSNotification) {
-        errorExpectation.fulfill()
-
-        let maybeProvider = notification.userInfo?[providerEventDetailsKeyProvider]
-        guard let eventProvider = maybeProvider as? UserDefaultsOpenFeatureProvider else {
-            XCTFail("Provider not passed in notification")
-            return
-        }
-        XCTAssertEqual(eventProvider.metadata.name, provider.metadata.name)
     }
 }
