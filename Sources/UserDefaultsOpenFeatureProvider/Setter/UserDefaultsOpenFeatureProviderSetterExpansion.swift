@@ -29,7 +29,7 @@ extension UserDefaultsOpenFeatureProvider {
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
         defaults.set(value, forKey: key)
-        emit(event: .configurationChanged, details: [key: value])
+        emit(event: .configurationChanged)
     }
 
     /// Sets the String value to the provider's specified key as a flag
@@ -50,7 +50,7 @@ extension UserDefaultsOpenFeatureProvider {
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
         defaults.set(value, forKey: key)
-        emit(event: .configurationChanged, details: [key: value])
+        emit(event: .configurationChanged)
     }
 
     /// Sets the Int64 value to the provider's specified key as a flag
@@ -71,7 +71,7 @@ extension UserDefaultsOpenFeatureProvider {
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
         defaults.set(value, forKey: key)
-        emit(event: .configurationChanged, details: [key: value])
+        emit(event: .configurationChanged)
     }
 
     /// Sets the Double value to the provider's specified key as a flag
@@ -92,7 +92,7 @@ extension UserDefaultsOpenFeatureProvider {
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
         defaults.set(value, forKey: key)
-        emit(event: .configurationChanged, details: [key: value])
+        emit(event: .configurationChanged)
     }
 
     /// Sets the Date value to the provider's specified key as a flag
@@ -113,7 +113,7 @@ extension UserDefaultsOpenFeatureProvider {
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
         defaults.set(value, forKey: key)
-        emit(event: .configurationChanged, details: [key: value])
+        emit(event: .configurationChanged)
     }
 
     /// Sets the List value to the provider's specified key as a flag
@@ -135,7 +135,7 @@ extension UserDefaultsOpenFeatureProvider {
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
         defaults.set(value, forKey: key)
-        emit(event: .configurationChanged, details: [key: value])
+        emit(event: .configurationChanged)
     }
 
     /// Sets the Dictionary value to the provider's specified key as a flag
@@ -157,6 +157,6 @@ extension UserDefaultsOpenFeatureProvider {
         let defaults = try getCurrentUserDefaults(with: context)
         let value = condition(context.getTargetingKey())
         defaults.set(value, forKey: key)
-        emit(event: .configurationChanged, details: [key: value])
+        emit(event: .configurationChanged)
     }
 }
