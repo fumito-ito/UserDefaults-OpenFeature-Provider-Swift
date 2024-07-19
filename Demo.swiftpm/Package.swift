@@ -36,7 +36,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: ".."),
-        .package(url: "https://github.com/open-feature/swift-sdk", "0.0.2"..<"0.1.0")
+        .package(url: "https://github.com/open-feature/swift-sdk", "0.0.2"..<"0.2.0")
     ],
     targets: [
         .executableTarget(
